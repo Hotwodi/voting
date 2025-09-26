@@ -40,7 +40,7 @@ This file lists the full checklist and decision guidance for building a live Pol
   - Create project: `flutter create polygon_voting_app`.
 - Success criteria: `flutter doctor` green; project builds for debug on Android emulator.
 - Estimated effort: 1–2 hours.
-- Status: [x] Completed (Flutter project skeleton created and dependencies installed).
+- Status: ✅ Completed (Flutter project skeleton created and dependencies installed).
 
 ### 2) Smart Contract: Solidity (OpenZeppelin scaffold)
 - Tasks:
