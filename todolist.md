@@ -148,14 +148,6 @@ This order minimizes risk and gets a working, auditable voting flow in front of 
 
 Below are ready-to-pick sections. Each section groups related tasks so you can choose one to complete as a unit. Mark a section done when all child tasks are complete.
 
-8) Indexing & Analytics (The Graph / Alchemy)
- - Tasks:
-   - Create a subgraph or use Alchemy Enhanced APIs to index VoteCast events, poll metadata.
-   - Provide backend endpoints for the app to fetch aggregated results and history.
- - Success criteria: Fast queries for historical results and user activity.
- - Estimated effort: 2–5 days.
- - Artifacts: subgraph manifest, indexer code, API endpoints.
-
 How to pick
 - Pick one or multiple section numbers (for example: "Do 1,2,5 together").
 - I will implement the chosen sections end-to-end and create or modify the necessary files and CI entries.

@@ -295,6 +295,28 @@ Last TX: ${_transactions.isNotEmpty ? _transactions.last.txHash : 'None'}
     return Scaffold(
       appBar: AppBar(
         title: const Text('Polygon Voting App'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.admin_panel_settings),
+            onPressed: () => Navigator.pushNamed(context, '/admin'),
+            tooltip: 'Admin Dashboard',
+          ),
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () => Navigator.pushNamed(context, '/profile'),
+            tooltip: 'User Profile',
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
+            tooltip: 'Settings',
+          ),
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () => Navigator.pushNamed(context, '/notifications'),
+            tooltip: 'Notifications',
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

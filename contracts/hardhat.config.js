@@ -7,11 +7,11 @@ module.exports = {
     hardhat: {},
     mumbai: {
       url: "https://polygon-mumbai.g.alchemy.com/v2/y6RsMlq62mXqDZC08T_6S", // Replace with your Alchemy key
-      accounts: [`0x${process.env.PRIVATE_KEY}`] // Set PRIVATE_KEY in env
+      accounts: process.env.PRIVATE_KEY ? [`0x${process.env.PRIVATE_KEY}`] : []
     },
     polygon: {
       url: "https://polygon-mainnet.g.alchemy.com/v2/y6RsMlq62mXqDZC08T_6S",
-      accounts: [`0x${process.env.PRIVATE_KEY}`]
+      accounts: process.env.PRIVATE_KEY ? [`0x${process.env.PRIVATE_KEY}`] : []
     }
   },
   etherscan: {

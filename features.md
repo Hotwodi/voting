@@ -190,6 +190,38 @@ This file lists the completed features and implementations for the live Polygon 
  - Artifacts: `.github/workflows/*` including build & verify flows.
  - Status: ✅ Completed
 
+8) Indexing & Analytics (The Graph / Alchemy)
+ - Tasks:
+   - Use Alchemy Enhanced API to index VoteCast events and poll metadata.
+   - Provide fast API endpoints for feed & history queries.
+ - Success criteria: Fast queries for historical results and user activity.
+ - Estimated effort: 2–5 days.
+ - Artifacts: indexer code, API endpoints.
+ - Status: ✅ Completed
+
+9) Enhanced UI Screens with Glass Theme
+ - Tasks:
+   - Create Admin Dashboard screen for poll management (create, list, open/close polls).
+   - Create User Profile screen for wallet info and voting history.
+   - Implement glass morphism design with blur effects and transparency.
+   - Add navigation between screens via app bar icons.
+ - Success criteria: Intuitive admin tools, personalized user dashboard, consistent glass theme across screens.
+ - Estimated effort: 3–5 days.
+ - Artifacts: `admin_dashboard_screen.dart`, `user_profile_screen.dart`, updated navigation.
+ - Status: ✅ Completed
+
+10) Additional Screens: Poll Creation, Settings, Notifications, Onboarding
+ - Tasks:
+   - Poll Creation: Form-based screen for creating polls with dynamic options.
+   - Settings: Configurable contract ABI/address, wallet/gasless settings, app preferences.
+   - Notifications: Inbox for poll updates, voting confirmations, and alerts.
+   - Onboarding: Step-by-step tutorial for new users with skip option.
+   - Maintain glass theme and integrate with existing services.
+ - Success criteria: Complete user flow from onboarding to voting, customizable settings, timely notifications.
+ - Estimated effort: 4–7 days.
+ - Artifacts: `poll_creation_screen.dart`, `settings_screen.dart`, `notifications_screen.dart`, `onboarding_screen.dart`.
+ - Status: ✅ Completed
+
 ---
 
 End of implemented features.

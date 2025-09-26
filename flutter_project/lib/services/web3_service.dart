@@ -121,17 +121,36 @@ class Web3Service {
     return out;
   }
 
-  /// Polling helper: fetch vote count for each option in a poll
+  /// Fetch historical VoteCast events for a poll
+  Future<List<Map<String, dynamic>>> fetchVoteHistory({required String abiJson, required String contractAddress, required int pollId}) async {
+    final contract = loadContract(abiJson, contractAddress, 'Voting');
+    final event = contract.event('VoteCast');
+    final filter = FilterOptions.events(contract: contract, event: event, fromBlock: const BlockNum.genesis(), toBlock: const BlockNum.current());
+    final logs = await _client!.getLogs(filter);
+    List<Map<String, dynamic>> history = [];
+    for (var log in logs) {
+      final decoded = decodeEvent(abiJson: abiJson, contractAddress: contractAddress, eventName: 'VoteCast', event: log);
+      if (decoded['pollId'] == pollId) {
+        history.add(decoded);
+      }
+    }
+    return history;
+  }
+
+  /// Get the contract owner address
+  Future<String> getContractOwner(String abiJson, String contractAddress) async {
+    final contract = loadContract(abiJson, contractAddress, 'Voting');
+    final result = await callFunction(contract, 'owner', []);
+    return result[0].toString();
+  }
+
+  /// Fetch tallies for a poll
   Future<Map<int, int>> fetchTallies({required String abiJson, required String contractAddress, required int pollId}) async {
     final contract = loadContract(abiJson, contractAddress, 'Voting');
-    final getOptions = contract.function('getOptions');
-    final getVotes = contract.function('getVotes');
-    final optionsRes = await _client!.call(contract: contract, function: getOptions, params: [BigInt.from(pollId)]);
-    final List opts = optionsRes[0] as List;
-    Map<int, int> tallies = {};
-    for (var i = 0; i < opts.length; i++) {
-      final r = await _client!.call(contract: contract, function: getVotes, params: [BigInt.from(pollId), BigInt.from(i)]);
-      tallies[i] = (r[0] as BigInt).toInt();
+    final result = await callFunction(contract, 'getTallies', [BigInt.from(pollId)]);
+    final tallies = <int, int>{};
+    for (var i = 0; i < result.length; i++) {
+      tallies[i] = (result[i] as BigInt).toInt();
     }
     return tallies;
   }

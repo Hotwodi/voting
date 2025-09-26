@@ -15,6 +15,7 @@ class PollDetailScreen extends StatefulWidget {
 class _PollDetailScreenState extends State<PollDetailScreen> {
   List<String> _options = [];
   Map<int, int> _tallies = {};
+  List<Map<String, dynamic>> _history = [];
   bool _voted = false;
   bool _open = true;
   StreamSubscription? _eventSub;
@@ -53,8 +54,10 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
     _options = opts.map((e) => e.toString()).toList();
 
     final tallies = await Web3Service.instance.fetchTallies(abiJson: _abiJson, contractAddress: _contractAddress, pollId: widget.pollId);
+    final history = await Web3Service.instance.fetchVoteHistory(abiJson: _abiJson, contractAddress: _contractAddress, pollId: widget.pollId);
     setState(() {
       _tallies = tallies;
+      _history = history;
     });
   }
 
@@ -101,30 +104,49 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Poll Detail')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(_open ? 'Poll is OPEN' : 'Poll is CLOSED'),
             const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _options.length,
-                itemBuilder: (context, index) {
-                  final label = _options[index];
-                  final tally = _tallies[index] ?? 0;
-                  return ListTile(
-                    title: Text(label),
-                    subtitle: Text('Votes: $tally'),
-                    trailing: _voted || !_open
-                        ? null
-                        : ElevatedButton(
-                            onPressed: () => _castVote(index),
-                            child: const Text('Vote'),
-                          ),
-                  );
-                },
-              ),
+            const Text('Options:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _options.length,
+              itemBuilder: (context, index) {
+                final label = _options[index];
+                final tally = _tallies[index] ?? 0;
+                return ListTile(
+                  title: Text(label),
+                  subtitle: Text('Votes: $tally'),
+                  trailing: _voted || !_open
+                      ? null
+                      : ElevatedButton(
+                          onPressed: () => _castVote(index),
+                          child: const Text('Vote'),
+                        ),
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            const Text('Vote History:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _history.length,
+              itemBuilder: (context, index) {
+                final vote = _history[index];
+                final voter = vote['voter'] ?? 'Unknown';
+                final optionId = (vote['optionId'] as int?) ?? 0;
+                final option = optionId < _options.length ? _options[optionId] : 'Unknown';
+                return ListTile(
+                  title: Text('Voter: ${voter.toString().length > 10 ? voter.toString().substring(0, 10) : voter}...'),
+                  subtitle: Text('Voted for: $option'),
+                );
+              },
             ),
           ],
         ),
