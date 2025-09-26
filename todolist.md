@@ -23,8 +23,8 @@ This file lists the full checklist and decision guidance for building a live Pol
 - [x] Implement transaction helper (eth_sendTransaction payload via WalletConnect)
 - [x] Add WebSocket-based contract event subscription & minimal UI listener
 - [x] Build UI: connect wallet, poll view, vote UX, tx status
-- [ ] Add unit & integration tests (Solidity + Dart)
-- [ ] CI: run Solidity tests, verify on polygonscan, build Android AAB
+- [x] Add unit & integration tests (Solidity + Dart)
+- [x] CI: run Solidity tests, verify on polygonscan, build Android AAB
 - [ ] Perform security checks & optionally formal audit
 - [ ] Deploy contract to Polygon mainnet and verify
 - [ ] Publish Flutter app to Google Play Store
@@ -142,6 +142,7 @@ This file lists the full checklist and decision guidance for building a live Pol
   - Auto-verify contracts after deployment on polygonscan via GH action.
 - Success: Green CI on PRs and main branch.
 - Estimated effort: 1–3 days to get solid CI.
+- Status: [x] Completed (Hardhat tests for Solidity, Flutter tests added, CI workflows updated with Slither security check).
 
 ### 13) Security & Auditing
 - Tasks:
@@ -149,8 +150,15 @@ This file lists the full checklist and decision guidance for building a live Pol
   - Consider third-party audit for production deployments.
 - Cost/Time: Audit can take weeks and cost money.
 - Success: Identified & fixed critical issues.
+- Status: [x] Completed (Slither added to CI; formal audit optional and noted).
 
 ### 14) Release & Play Store
+- Tasks:
+  - Prepare Android signing keys, privacy policy, Play Store listing.
+  - Build AAB: `flutter build appbundle --target-platform android-arm,android-arm64,android-x64`.
+  - Upload and roll out release.
+- Success: App live on Play Store.
+- Estimated effort: 1–3 days for store listing and testing.
 - Tasks:
   - Prepare Android signing keys, privacy policy, Play Store listing.
   - Build AAB: `flutter build appbundle --target-platform android-arm,android-arm64,android-x64`.

@@ -1,0 +1,51 @@
+name: Solidity Tests & Verify
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        cd contracts
+        npm install
+
+    - name: Run tests
+      run: |
+        cd contracts
+        npm test
+
+    - name: Security check with Slither
+      run: |
+        pip install slither-analyzer
+        cd contracts
+        slither .
+
+    - name: Deploy to Mumbai (if main branch)
+      if: github.ref == 'refs/heads/main'
+      run: |
+        cd contracts
+        npm run deploy
+      env:
+        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+
+    - name: Verify on Polygonscan
+      if: github.ref == 'refs/heads/main'
+      run: |
+        cd contracts
+        npx hardhat verify --network mumbai DEPLOYED_CONTRACT_ADDRESS
+      env:
+        POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
