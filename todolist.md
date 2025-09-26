@@ -171,7 +171,9 @@ This file lists the full checklist and decision guidance for building a live Pol
   - Setup Alchemy dashboards, Sentry, Firebase Analytics.
   - Monitor RPC errors and failed TXs.
   - Plan for contract admin (multisig for emergency pause/migration).
-- Success: Alerts and dashboards operational.
+  - Add Real Validation Synchronization and Testing Design: live contract verification, transaction test flow, event checks, RPC health, validation reports.
+- Success: Alerts and dashboards operational, validation tools integrated in admin panel.
+- Estimated effort: 2–4 days.
 
 ---
 
