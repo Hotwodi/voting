@@ -217,6 +217,79 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Validation functions
+  Future<void> _liveContractVerification() async {
+    if (_abiJson.isEmpty || _contractAddress.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ABI and contract address required')));
+      return;
+    }
+    try {
+      final contract = Web3Service.instance.loadContract(_abiJson, _contractAddress, 'Voting');
+      final pollsCount = await Web3Service.instance.callFunction(contract, 'pollsCount', []);
+      final options = await Web3Service.instance.callFunction(contract, 'getOptions', [BigInt.zero]);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Contract reachable: $pollsCount polls, options: ${options[0]}')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Contract verification failed: $e')));
+    }
+  }
+
+  Future<void> _transactionTestFlow() async {
+    if (_account.isEmpty || _account == 'Not connected') {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wallet not connected')));
+      return;
+    }
+    try {
+      // Use a test option, assume option 0 exists
+      final txHash = await WalletService.instance.sendContractTransaction(
+        abiJson: _abiJson,
+        contractAddress: _contractAddress,
+        functionName: 'vote',
+        functionParams: [BigInt.zero],
+      );
+      if (txHash != null) {
+        // Wait a bit and check if vote was counted
+        await Future.delayed(const Duration(seconds: 10));
+        final tallies = await Web3Service.instance.fetchTallies(abiJson: _abiJson, contractAddress: _contractAddress, pollId: 0);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Test vote submitted: $txHash, tallies: $tallies')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Test transaction failed: $e')));
+    }
+  }
+
+  Future<void> _eventSubscriptionCheck() async {
+    // Already subscribing, just report status
+    final isSubscribed = _eventSub != null && !_eventSub!.isPaused;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Event subscription active: $isSubscribed')));
+  }
+
+  Future<void> _rpcHealthCheck() async {
+    try {
+      final block = await Web3Service.instance.getLatestBlockNumber();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('RPC healthy, latest block: $block')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('RPC health check failed: $e')));
+    }
+  }
+
+  Future<void> _validationReport() async {
+    final report = '''
+RPC: ${await Web3Service.instance.getLatestBlockNumber() > 0 ? 'OK' : 'FAIL'}
+Wallet: ${_account != 'Not connected' ? 'Connected' : 'Disconnected'}
+Contract: ${_abiJson.isNotEmpty && _contractAddress.isNotEmpty ? 'Configured' : 'Missing'}
+Events: ${_eventSub != null ? 'Subscribed' : 'Not subscribed'}
+Last TX: ${_transactions.isNotEmpty ? _transactions.last.txHash : 'None'}
+    '''.trim();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Validation Report'),
+        content: Text(report),
+        actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('OK'))],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -365,6 +438,36 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                   },
                   child: const Text('Close Poll'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const Divider(),
+            const Text('Real Validation Synchronization and Testing Design'),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ElevatedButton(
+                  onPressed: _liveContractVerification,
+                  child: const Text('1. Live Contract Verification'),
+                ),
+                ElevatedButton(
+                  onPressed: _transactionTestFlow,
+                  child: const Text('2. Transaction Test Flow'),
+                ),
+                ElevatedButton(
+                  onPressed: _eventSubscriptionCheck,
+                  child: const Text('3. Event Subscription Check'),
+                ),
+                ElevatedButton(
+                  onPressed: _rpcHealthCheck,
+                  child: const Text('4. RPC Health Check'),
+                ),
+                ElevatedButton(
+                  onPressed: _validationReport,
+                  child: const Text('5. Validation Report'),
                 ),
               ],
             ),
