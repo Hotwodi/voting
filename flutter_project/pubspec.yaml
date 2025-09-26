@@ -10,10 +10,12 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  walletconnect_dart: ^1.0.0
+  walletconnect_dart: ^0.0.11
   url_launcher: ^6.0.20
   web3dart: ^2.3.3
+  web_socket_channel: ^2.2.0
   http: ^0.13.0
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:

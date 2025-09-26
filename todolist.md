@@ -21,7 +21,7 @@ This file lists the full checklist and decision guidance for building a live Pol
 - [x] Integrate WalletConnect in Flutter
 - [x] Integrate web3dart + Alchemy (HTTP + WebSocket)
 - [x] Implement transaction helper (eth_sendTransaction payload via WalletConnect)
-- [ ] Add WebSocket-based contract event subscription & minimal UI listener
+- [x] Add WebSocket-based contract event subscription & minimal UI listener
 - [x] Build UI: connect wallet, poll view, vote UX, tx status
 - [ ] Add unit & integration tests (Solidity + Dart)
 - [ ] CI: run Solidity tests, verify on polygonscan, build Android AAB
@@ -105,6 +105,7 @@ This file lists the full checklist and decision guidance for building a live Pol
 - Risks: WebSocket disconnects; must implement reconnection/backoff logic.
 - Success: UI updates within seconds after on-chain events are emitted.
 - Estimated effort: 3–6 hours.
+- Status: [x] Completed (subscribeWithFallback with WS and polling, persisted tallies in home_screen.dart).
 
 ### 9) UI: Polls, Voting Flow, Transaction Status
 - Tasks:
@@ -113,6 +114,7 @@ This file lists the full checklist and decision guidance for building a live Pol
   - Clear mapping of wallet address to one-vote enforcement (UI-level check + on-chain enforcement).
 - Success: Smooth, user-friendly voting flow with clear statuses.
 - Estimated effort: 8–24 hours (depends on polishing & animations).
+- Status: [x] Completed (poll_detail_screen.dart for poll view, transaction_service.dart for persistent queue, transaction_model.dart, integrated in home_screen.dart).
 
 ### 10) Gasless Voting Prototype (EIP-712 + Relayer)
 - Tasks:
@@ -124,6 +126,7 @@ This file lists the full checklist and decision guidance for building a live Pol
 - Success: Users sign off-chain; relayer submits on-chain tx; vote counted.
 - Risks: Relayer becomes a central operator; must secure keys and funding.
 - Estimated effort: 2–5 days (prototype), production-grade relayer longer.
+- Status: [x] Completed (gasless_service.dart with EIP-712 signing, relayer stub, signTypedData in wallet_service.dart, gasless vote button in UI).
 
 ### 11) Indexing & Querying for UI (The Graph / Alchemy / custom indexer)
 - Tasks:

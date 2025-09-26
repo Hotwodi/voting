@@ -1,11 +1,13 @@
 import 'package:walletconnect_dart/walletconnect_dart.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'web3_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class WalletService {
   static final WalletService instance = WalletService._internal();
   WalletConnect? _connector;
-  SessionStatus? _session;
+  // Session state is managed internally by WalletConnect; we rely on connector.session.
   String? account;
 
   WalletService._internal();
@@ -38,6 +40,20 @@ class WalletService {
     });
   }
 
+  Future<void> saveConfig({required String abiJson, required String contractAddress}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('abiJson', abiJson);
+    await prefs.setString('contractAddress', contractAddress);
+  }
+
+  Future<Map<String, String?>> loadConfig() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'abiJson': prefs.getString('abiJson'),
+      'contractAddress': prefs.getString('contractAddress'),
+    };
+  }
+
   Future<void> connect() async {
     if (_connector == null) await init();
 
@@ -45,7 +61,6 @@ class WalletService {
       final session = await _connector!.createSession(onDisplayUri: (uri) async {
         await launchUrlString(uri, mode: LaunchMode.externalApplication);
       });
-      _session = session;
       if (session.accounts.isNotEmpty) {
         account = session.accounts.first;
       }
@@ -91,6 +106,22 @@ class WalletService {
     };
 
     final result = await _connector!.sendCustomRequest(method: 'eth_sendTransaction', params: [tx]);
+    return result as String?;
+  }
+
+  Future<String?> signTypedData(Map<String, dynamic> domain, Map<String, dynamic> types, Map<String, dynamic> message) async {
+    if (_connector == null || !_connector!.connected) {
+      throw Exception('Wallet not connected');
+    }
+
+    final typedData = {
+      'types': types,
+      'domain': domain,
+      'primaryType': 'Vote',
+      'message': message,
+    };
+
+    final result = await _connector!.sendCustomRequest(method: 'eth_signTypedData_v4', params: [account, jsonEncode(typedData)]);
     return result as String?;
   }
 }

@@ -29,6 +29,46 @@ class Web3Service {
     return Web3Client(_wssUrl, Client(), socketConnector: socketConnector);
   }
 
+  /// Robust event subscription with reconnect/backoff. Returns a stream that
+  /// attempts to reconnect when the underlying WS closes and falls back to
+  /// polling by invoking [pollCallback] on the given interval if WS is down.
+  Stream<dynamic> subscribeWithFallback({
+    required String abiJson,
+    required String contractAddress,
+    required String eventName,
+    Duration reconnectDelay = const Duration(seconds: 2),
+    Duration maxDelay = const Duration(seconds: 30),
+    Duration pollInterval = const Duration(seconds: 15),
+    Future<void> Function()? pollCallback,
+  }) async* {
+    var delay = reconnectDelay;
+    while (true) {
+      try {
+        final wsClient = newWebSocketClient();
+        final contract = DeployedContract(ContractAbi.fromJson(abiJson, 'Contract'), EthereumAddress.fromHex(contractAddress));
+        final event = contract.event(eventName);
+        final filter = FilterOptions.events(contract: contract, event: event);
+        await for (final ev in wsClient.events(filter)) {
+          yield ev;
+        }
+        // If we exit the loop, connection closed — try reconnect
+        await Future.delayed(delay);
+        delay = (delay * 2) < maxDelay ? (delay * 2) : maxDelay;
+      } catch (e) {
+        // WS failed — run poll fallback if provided, then wait and retry
+        if (pollCallback != null) {
+          try {
+            await pollCallback();
+          } catch (pollErr) {
+            // ignore poll errors
+          }
+        }
+        await Future.delayed(delay);
+        delay = (delay * 2) < maxDelay ? (delay * 2) : maxDelay;
+      }
+    }
+  }
+
   Future<int> getLatestBlockNumber() async {
     _client ??= Web3Client(_httpUrl, Client());
     final bn = await _client!.getBlockNumber();
@@ -56,7 +96,7 @@ class Web3Service {
 
   /// Subscribe to contract events using a WebSocket client.
   /// Returns the Stream<FilterEvent> you can listen to.
-  Stream<FilterEvent> listenToEvent({
+  Stream<dynamic> listenToEvent({
     required String abiJson,
     required String contractAddress,
     required String eventName,
@@ -65,6 +105,34 @@ class Web3Service {
     final contract = DeployedContract(ContractAbi.fromJson(abiJson, 'Contract'), EthereumAddress.fromHex(contractAddress));
     final event = contract.event(eventName);
     final filter = FilterOptions.events(contract: contract, event: event);
+    // Stream of FilterEvent objects; we'll decode them in the UI layer.
     return wsClient.events(filter);
+  }
+
+  /// Decode a FilterEvent into event parameters using the contract ABI
+  Map<String, dynamic> decodeEvent({required String abiJson, required String contractAddress, required String eventName, required FilterEvent event}) {
+    final contract = DeployedContract(ContractAbi.fromJson(abiJson, 'Contract'), EthereumAddress.fromHex(contractAddress));
+    final ev = contract.event(eventName);
+    final decoded = ev.decodeResults(event.topics!, event.data!);
+    final Map<String, dynamic> out = {};
+    for (var i = 0; i < decoded.length; i++) {
+      out['param_$i'] = decoded[i];
+    }
+    return out;
+  }
+
+  /// Polling helper: fetch vote count for each option in a poll
+  Future<Map<int, int>> fetchTallies({required String abiJson, required String contractAddress, required int pollId}) async {
+    final contract = loadContract(abiJson, contractAddress, 'Voting');
+    final getOptions = contract.function('getOptions');
+    final getVotes = contract.function('getVotes');
+    final optionsRes = await _client!.call(contract: contract, function: getOptions, params: [BigInt.from(pollId)]);
+    final List opts = optionsRes[0] as List;
+    Map<int, int> tallies = {};
+    for (var i = 0; i < opts.length; i++) {
+      final r = await _client!.call(contract: contract, function: getVotes, params: [BigInt.from(pollId), BigInt.from(i)]);
+      tallies[i] = (r[0] as BigInt).toInt();
+    }
+    return tallies;
   }
 }
