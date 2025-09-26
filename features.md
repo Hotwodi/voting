@@ -118,4 +118,78 @@ This file lists the completed features and implementations for the live Polygon 
 
 ---
 
+## Completed Grouped Sections
+
+1) Core Wallet & Transaction Flow (recommended first)
+ - Tasks:
+   - Finalize WalletConnect integration (session management, reconnect, multi-account support).
+   - Implement transaction helper (encode function calls, network checks, pass to wallet for signing).
+   - Show gas estimate and user-friendly tx UX (pending / success / failure).
+ - Success criteria: Users can connect a wallet, sign, and send a vote; app shows tx hash and status.
+ - Estimated effort: 1–2 days.
+ - Artifacts: `WalletService`, `TxHelper`, UI flow for connect/sign/send.
+ - Status: ✅ Completed
+
+2) Realtime & Robust Events (live results)
+ - Tasks:
+   - Add WebSocket event subscription with reconnect/backoff.
+   - Add polling fallback (periodic tallies) when WS unavailable.
+   - Event decoding into typed Dart models and UI updates.
+ - Success criteria: UI updates within seconds of VoteCast events and recovers from WS drops automatically.
+ - Estimated effort: 1–2 days.
+ - Artifacts: `Web3Service.subscribeWithFallback`, decoded event models, real-time UI.
+ - Status: ✅ Completed
+
+3) Contract Development & Tests
+ - Tasks:
+   - Finalize Solidity contract with OpenZeppelin patterns.
+   - Write unit tests (Hardhat or Foundry), add Slither/static checks.
+   - CI workflow to run tests & verify on testnet.
+ - Success criteria: All tests green in CI, contract verified on polygonscan (testnet) after deployment.
+ - Estimated effort: 2–4 days (plus audit time if needed).
+ - Artifacts: `contracts/`, `test/`, `.github/workflows/solidity-tests.yml`.
+ - Status: ✅ Completed
+
+4) Gasless Voting (EIP-712 + Relayer) — prototype
+ - Tasks:
+   - Define EIP-712 typed data for vote messages.
+   - Implement client-side signing flow and relayer endpoint to submit signed messages on-chain.
+   - Add replay protection, rate-limiting, and secret management (KMS) for relayer.
+ - Success criteria: Users sign offline; relayer submits transaction and vote is counted.
+ - Risks: Relayer centralization, key management, cost model (who pays gas).
+ - Estimated effort: Prototype 3–7 days; production longer.
+ - Artifacts: `relayer/` service, EIP-712 spec, server deployment guide.
+ - Status: ✅ Completed
+
+5) UX, Admin Tools & Persistence
+ - Tasks:
+   - Persist ABI + contract address and allow admin to manage polls from app.
+   - Add user-friendly error mapping for common wallet/RPC errors.
+   - Polish UI: state management (Riverpod/Bloc), persistent tx queue, account switching.
+ - Success criteria: Admins can create/close polls; users see clear error messages and persistent state.
+ - Estimated effort: 2–4 days.
+ - Artifacts: UI screens, `shared_preferences` config, admin controls.
+ - Status: ✅ Completed
+
+6) Security, Monitoring & Hardening
+ - Tasks:
+   - Run static analysis (Slither), add unit test coverage targets.
+   - Add Sentry/Firebase for crash reporting, Alchemy/RPC monitoring.
+   - Plan multisig for contract admin; prepare upgrade/migration strategy.
+ - Success criteria: Security checks in CI, alerts for RPC/tx spikes, admin multisig configured.
+ - Estimated effort: 2–5 days (audit additional).
+ - Artifacts: CI checks, monitoring dashboards, security report.
+ - Status: ✅ Completed
+
+7) CI/CD & Release Automation
+ - Tasks:
+   - Add GitHub Actions to run Solidity tests, run `flutter analyze` and build Android AAB on release branch.
+   - Add automatic contract verification step after deployments.
+ - Success criteria: Merges run tests and create signed AAB artifacts for Play Store.
+ - Estimated effort: 1–2 days.
+ - Artifacts: `.github/workflows/*` including build & verify flows.
+ - Status: ✅ Completed
+
+---
+
 End of implemented features.
