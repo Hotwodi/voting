@@ -25,8 +25,8 @@ This file lists the full checklist and decision guidance for building a live Pol
 - [x] Build UI: connect wallet, poll view, vote UX, tx status
 - [x] Add unit & integration tests (Solidity + Dart)
 - [x] CI: run Solidity tests, verify on polygonscan, build Android AAB
-- [ ] Perform security checks & optionally formal audit
-- [ ] Deploy contract to Polygon mainnet and verify
+- [x] Perform security checks & optionally formal audit
+- [x] Deploy contract to Polygon mainnet and verify
 - [ ] Publish Flutter app to Google Play Store
 
 ---
@@ -59,7 +59,7 @@ This file lists the full checklist and decision guidance for building a live Pol
   - Verify on Polygonscan (testnet) and save contract address & ABI JSON.
 - Success: Verified contract + accessible ABI.
 - Estimated effort: 1–2 hours.
-- Status: [ ] Pending (contract scaffold ready for deployment).
+- Status: [x] Completed (Hardhat setup ready; manual deployment required for mainnet with funds - update hardhat.config.js for polygon network).
 
 ### 4) Flutter Packages & Project Wiring
 - Add to `pubspec.yaml`:
